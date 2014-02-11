@@ -1,5 +1,5 @@
 
-!function($){
+!function($, window, undefined){
     "use strict";
 
     if( $ === undefined ){
@@ -16,20 +16,20 @@
             throw new Error('file type should be image');
         }
         var image = new Image();
-        var reader = new FileReader();
-
-        reader.onload = function(evt) {
-            image.onload = function() {
-                $canvas[0].width = image.width;
-                $canvas[0].height = image.height;
-                var ctx = $canvas[0].getContext("2d");
-                ctx.drawImage(image, 0, 0);
-                if(typeof callback === "function"){
-                    callback();
-                }
+        image.onload = function(){
+            $canvas
+                .attr('width', image.width)
+                .attr('height', image.height);
+            var ctx = $canvas[0].getContext("2d");
+            ctx.drawImage(image, 0, 0);
+            if(typeof callback === "function"){
+                callback();
             }
+        };
+        var reader = new FileReader();
+        reader.onload = function(evt){
             image.src = evt.target.result;
-        }
+        };
         reader.readAsDataURL(file);
     };
 
@@ -54,23 +54,19 @@
         });
     };
 
-    var onSaveBtnPushClicked = function(){
-        var img = new Image();
+    var onSaveBtnClicked = function(){
         var type = 'image/png'; 
-        img.src = $canvas[0].toDataURL(type);
-        img.onload = function(){
-            var url = img.src;
-            var link = window.document.createElement('a');
-            link.href = url;
-            link.download = 'output.png';
-            var click = document.createEvent("Event");
-            click.initEvent("click", true, true);
-            link.dispatchEvent(click);
-        };
+        var url = $canvas[0].toDataURL(type);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = "output.png";
+        var click = document.createEvent("Event");
+        click.initEvent("click", true, true);
+        link.dispatchEvent(click);
     };
 
-    var onResetBtnPushClicked = function(){
-        loadImageFromInput($uploadFile.get(0));
+    var onResetBtnClicked = function(){
+        loadImageFromInput($uploadFile[0]);
     };
 
     var onStrokeBtnClicked = function(){
@@ -91,8 +87,8 @@
         $fontTop = $("input#font_top");
         $fontLeft = $("input#font_left");
         $btnStroke = $("input#btn_stroke").click(onStrokeBtnClicked);
-        $btnReset = $("input#btn_reset").click(onResetBtnPushClicked);
-        $btnSave = $("input#btn_save").click(onSaveBtnPushClicked);
+        $btnReset = $("input#btn_reset").click(onResetBtnClicked);
+        $btnSave = $("input#btn_save").click(onSaveBtnClicked);
     });
 
-}(jQuery);
+}(jQuery, window);
